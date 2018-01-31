@@ -20,56 +20,45 @@ let flickr = (query) => {
 let appendToList = (list, data) => {
     list.innerHTML += "<li>" + data + "</li>"
     if (list === imgList) {
-        list.innerHTML += "<li><img src="+data+" /></li>"
+        list.innerHTML += "<li><img src=" + data + " /></li>"
     }
 }
 
-// Turn flickr response to url's
+// Turn flickr response to url
 let imgUrl = (data) => {
-    return "https://farm"+data.farm+".staticflickr.com/"+data.server+"/"+data.id+"_"+data.secret+".jpg"
+    return "https://farm" + data.farm + ".staticflickr.com/" + data.server + "/" + data.id + "_" + data.secret + ".jpg"
 }
 
-// Flickr fetch method
-function fetchImgs(query) {
-    fetch(flickr(query))
-        .then(response => {
-            response.json()
-                .then(data => {
-                    let imgUrls = []
-                    data.photos.photo.forEach(photo => {
-                        imgUrls.push(imgUrl(photo))
-                    })
-                    imgUrls.forEach(url => {
-                        appendToList(imgList, url)
-                    })
-                })
-        })
-        .catch(error => console.error(error))
-}
+let handleData = (array) => {
+    imgData = array[0].photos.photo
+    wordData = array[1].adjective.syn
 
-// Thesaurus fetch method
-function fetchWords(query) {
-    fetch(thesaurus(query))
-        .then(response => {
-            response.json()
-                .then(data => {
-                    console.log(data.adjective.syn)
-                    // Split up different word categories and append to word-list
-                    data.adjective.syn.forEach(word => {
-                        appendToList(wordList, word)
-                    });
-                })
-        })
-        .catch(error => console.error(error))
+    imgUrls = []
+    imgData.forEach(element => {
+        imgUrls.push(imgUrl(element))
+    })
 
+    //handle words
+
+    console.log(imgUrls)
+    console.log(wordData)
 }
 
 // To do:
 // trigger when form is sent
 // fetch input value as query
 function search(query) {
-    fetchWords(query)
-    fetchImgs(query)
+
+    Promise.all([fetch(flickr(query)), fetch(thesaurus(query))])
+        .then(res => {
+            return res.map(type => type.json() )
+        })
+        .then(res => {
+            Promise.all(res)
+                .then(res => {
+                    return handleData(res)
+                })
+        });
 
     // Update "searched for:" text
     searchTerm.innerText = query
@@ -77,3 +66,15 @@ function search(query) {
 }
 
 search("red")
+
+                    // data.adjective.syn.forEach(word => {
+                    //     appendToList(wordList, word)
+                    // })
+
+                    // let imgUrls = []
+                    // data.photos.photo.forEach(photo => {
+                    //     imgUrls.push(imgUrl(photo))
+                    // })
+                    // imgUrls.forEach(url => {
+                    //     appendToList(imgList, url)
+                    // })
