@@ -40,8 +40,14 @@ let handleData = (array) => {
 
     //handle words
 
-    console.log(imgUrls)
-    console.log(wordData)
+    imgUrls.forEach(element => {
+        appendToList(imgList, element)
+    });
+
+
+    wordData.forEach(element => {
+        appendToList(wordList, element)
+    });
 }
 
 // To do:
