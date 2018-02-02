@@ -1,6 +1,6 @@
 // Init DOM elements
-const imgList = document.getElementById("photos")
-const wordList = document.getElementById("words")
+const gallery = document.getElementById("gallery")
+const buttonsList = document.getElementById("buttons")
 const searchTerm = document.getElementById("term")
 const form = document.querySelector("form")
 const input = document.querySelector("input")
@@ -21,18 +21,18 @@ let flickr = (query) => {
 
 // DOM-manipulation methods
 
-let appendToList = (list, data) => {
-    if (list === wordList) {
-        list.innerHTML += "<li><button class='word-btn' value='" + data + "'>" + data + "</button></li>"
+let appendTo = (container, data) => {
+    if (container === buttonsList) {
+        container.innerHTML += "<button class='word-btn' value='" + data + "'>" + data + "</button>"
     }
-    if (list === imgList) {
-        list.innerHTML += "<li><img src=" + data + " /></li>"
+    if (container === gallery) {
+        container.innerHTML += "<img src=" + data + " />"
     }
 }
 
 function clearContent() {
-    wordList.innerHTML = ""
-    imgList.innerHTML = ""
+    buttonsList.innerHTML = ""
+    gallery.innerHTML = ""
 }
 
 let addFunctionality  = (buttons) => {
@@ -46,10 +46,10 @@ let addFunctionality  = (buttons) => {
 function updatePage(words, imgs) {
     clearContent()
     words.forEach(element => {
-        appendToList(wordList, element)
+        appendTo(buttonsList, element)
     });
     imgs.forEach(element => {
-        appendToList(imgList, element)
+        appendTo(gallery, element)
     });
     buttons = document.querySelectorAll(".word-btn")
     addFunctionality(buttons)

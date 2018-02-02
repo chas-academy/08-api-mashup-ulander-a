@@ -1,0 +1,47 @@
+main {
+    display: flex;
+  }
+  
+  .gallery {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .gallery img {
+    margin-top: 10px;
+  }
+  
+  aside {
+    width: 20%;
+    height: 100%;
+  }
+  
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    background-color: lightblue;
+    padding: 1em;
+  }
+  
+  .aside-head {
+    background-color: steelblue;
+    padding: 1em;
+  }
+  
+  .buttons button {
+    margin-top: .5em;
+    width: 50%;
+    background-color: lightblue;
+    text-align: left;
+    border: 0;
+    border-bottom: 1px solid black;
+    font-size: 1em;
+  }
+  
+  .buttons button:hover {
+    cursor: pointer;
+    color: white;
+    border-color: white;
+  }
