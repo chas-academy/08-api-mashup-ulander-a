@@ -2,6 +2,9 @@
 const imgList = document.getElementById("photos")
 const wordList = document.getElementById("words")
 const searchTerm = document.getElementById("term")
+const form = document.querySelector("form")
+const input = document.querySelector("input")
+let buttons
 
 // Init API Keys
 const wordsKey = "db37862dc9b2b7334362debc7f5073ef"
@@ -17,63 +20,93 @@ let flickr = (query) => {
 }
 
 // DOM-manipulation methods
+
 let appendToList = (list, data) => {
-    list.innerHTML += "<li>" + data + "</li>"
+    if (list === wordList) {
+        list.innerHTML += "<li><button class='word-btn' value='" + data + "'>" + data + "</button></li>"
+    }
     if (list === imgList) {
-        list.innerHTML += "<li><img src="+data+" /></li>"
+        list.innerHTML += "<li><img src=" + data + " /></li>"
     }
 }
 
-// Turn flickr response to url's
+function clearContent() {
+    wordList.innerHTML = ""
+    imgList.innerHTML = ""
+}
+
+let addFunctionality  = (buttons) => {
+    buttons.forEach(button => {
+        button.addEventListener("click", function () {
+            search(this.value)
+        })
+    });
+}
+
+function updatePage(words, imgs) {
+    clearContent()
+    words.forEach(element => {
+        appendToList(wordList, element)
+    });
+    imgs.forEach(element => {
+        appendToList(imgList, element)
+    });
+    buttons = document.querySelectorAll(".word-btn")
+    addFunctionality(buttons)
+    input.value = ""
+}
+
+form.addEventListener("submit", function (event) {
+    event.preventDefault()
+    search(input.value)
+})
+
+// Data handling functions
 let imgUrl = (data) => {
-    return "https://farm"+data.farm+".staticflickr.com/"+data.server+"/"+data.id+"_"+data.secret+".jpg"
+    return "https://farm" + data.farm + ".staticflickr.com/" + data.server + "/" + data.id + "_" + data.secret + ".jpg"
 }
 
-// Flickr fetch method
-function fetchImgs(query) {
-    fetch(flickr(query))
-        .then(response => {
-            response.json()
-                .then(data => {
-                    let imgUrls = []
-                    data.photos.photo.forEach(photo => {
-                        imgUrls.push(imgUrl(photo))
-                    })
-                    imgUrls.forEach(url => {
-                        appendToList(imgList, url)
-                    })
-                })
+let handleWords = (data) => {
+    let w = []
+    data.forEach(element => {
+        element.syn.forEach(synonym => {
+            w.push(synonym)
         })
-        .catch(error => console.error(error))
+    })
+    return w
 }
 
-// Thesaurus fetch method
-function fetchWords(query) {
-    fetch(thesaurus(query))
-        .then(response => {
-            response.json()
-                .then(data => {
-                    console.log(data.adjective.syn)
-                    // Split up different word categories and append to word-list
-                    data.adjective.syn.forEach(word => {
-                        appendToList(wordList, word)
-                    });
-                })
-        })
-        .catch(error => console.error(error))
+let handleData = (array) => {
+    imgData = array[0].photos.photo
 
+    imgUrls = []
+    imgData.forEach(element => {
+        imgUrls.push(imgUrl(element))
+    })
+
+    wordData = []
+    if (array[1].adjective) {
+        wordData.push(array[1].adjective)
+    }
+    if (array[1].noun) {
+        wordData.push(array[1].noun)
+    }
+
+    words = handleWords(wordData)
+
+    updatePage(words, imgUrls)
 }
 
-// To do:
-// trigger when form is sent
-// fetch input value as query
 function search(query) {
-    fetchWords(query)
-    fetchImgs(query)
-
-    // Update "searched for:" text
     searchTerm.innerText = query
-    // Clear input field(?)
+    Promise.all([fetch(flickr(query)), fetch(thesaurus(query))])
+        .then(res => {
+            return res.map(type => type.json())
+        })
+        .then(res => {
+            Promise.all(res)
+                .then(res => {
+                    return handleData(res)
+                })
+        })
 }
-
-search("red")
